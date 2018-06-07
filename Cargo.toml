@@ -1,5 +1,5 @@
 [package]
-name = "openio-sdk-rust"
+name = "openio_sdk_rust"
 version = "0.1.42"
 authors = ["Rajthilak"]
 license = "Apache-2.0"
