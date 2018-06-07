@@ -1,0 +1,49 @@
+[package]
+name = "openio-sdk-rust"
+version = "0.1.42"
+authors = ["Rajthilak"]
+license = "Apache-2.0"
+readme = "README.md"
+keywords = ["aws", "s3", "openio"]
+repository = "https://github.com/megamsys/openio-sdk-rust"
+homepage = "https://github.com/megamsys/openio-sdk-rust"
+documentation = "https://github.com/megamsys/openio-sdk-rust"
+description = """
+Important Enhancements:
+1) Supports V2 and V4 API Signatures for third party S3 compliant products like Openio and Ceph
+2) Works from behind proxies
+3) Returned data can be in Rust structs, JSON or XML
+
+Works only for S3. Other AWS Storage features are coming soon!
+"""
+
+[dependencies]
+lsio = "0"
+chrono = "0.2"
+httparse = "1"
+hyper = "0.10"
+hyper-openssl = "0.2"
+log = "0.3.6"
+openssl = "0.9"
+regex = "0.1"
+rustc-serialize = "0.3"
+# Credentials use serde
+serde = "0.8"
+serde_json = "0.8"
+time = "0.1"
+url = "1.2"
+xml-rs = "0"
+env_logger = "0.5"
+futures = "0.1.16"
+futures-fs = "0.0.3"
+rand = "^0.3.14"
+reqwest = "0.8.5"
+urlencoding = "1.0.0"
+
+[dev-dependencies]
+# NOTE: term is only used for the example
+term = "0.4"
+md5 = "0.3"
+
+# Run the example like. It will pull in term and md5 at that time since they are only used for the example:
+# cargo run --example s3
