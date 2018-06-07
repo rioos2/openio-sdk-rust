@@ -20,7 +20,7 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]  // Mainly got tired of looking at warnings so added this :)
 
-extern crate aws_sdk_rust;
+extern crate openio_sdk_rust;
 #[macro_use]
 extern crate lsio;
 extern crate url;
@@ -43,15 +43,15 @@ use rustc_serialize::base64::{ToBase64, STANDARD};
 
 use lsio::commands::run_cli;
 
-use aws_sdk_rust::aws::common::credentials::{DefaultCredentialsProvider, ParametersProvider};
+use openio_sdk_rust::aws::common::credentials::{DefaultCredentialsProvider, ParametersProvider};
 // NOTE: The bucket and obect use is using * but you may want to use specific items instead of everything
-use aws_sdk_rust::aws::s3::bucket::*;
-use aws_sdk_rust::aws::s3::object::*;
-use aws_sdk_rust::aws::s3::acl::*;
+use openio_sdk_rust::aws::s3::bucket::*;
+use openio_sdk_rust::aws::s3::object::*;
+use openio_sdk_rust::aws::s3::acl::*;
 
-use aws_sdk_rust::aws::common::region::Region;
-use aws_sdk_rust::aws::s3::endpoint::{Endpoint, Signature};
-use aws_sdk_rust::aws::s3::s3client::S3Client;
+use openio_sdk_rust::aws::common::region::Region;
+use openio_sdk_rust::aws::s3::endpoint::{Endpoint, Signature};
+use openio_sdk_rust::aws::s3::s3client::S3Client;
 use url::Url;
 
 fn main() {
