@@ -297,10 +297,14 @@ impl<'a> SignedRequest<'a> {
         // a 307 redirect we end up with Three Stooges in the headers with duplicate values.
         self.update_header("Host", &hostname);
 
-        let ct = match self.content_type {
+        /*let ct = match self.content_type {
             Some(ref h) => h.to_string(),
             None => String::from("application/octet-stream"),
-        };
+        };*/
+        let mut ct = "".to_string();
+        if self.method == "PUT" {
+            ct = String::from("application/octet-stream");
+        }   
 
         let ep = self.endpoint().clone().user_agent.unwrap_or(DEFAULT_USER_AGENT.to_string());
         self.update_header("User-Agent", &ep);
@@ -312,9 +316,14 @@ impl<'a> SignedRequest<'a> {
         }
 
         // V2 uses GMT in long format
-        let date = (Local::now() + Duration::minutes(5)).timestamp().to_string();        
+        let current_date = (Local::now() + Duration::minutes(10));
+        let mut date = current_date.timestamp().to_string(); 
+        if self.method == "PUT" {
+            date = now_utc().rfc822().to_string();
+        }        
+        
         self.update_header("Date", &date);
-       
+        
         self.canonical_query_string = build_canonical_query_string(&self.params);
 
         let md5 = self.get_header("Content-MD5");
@@ -329,7 +338,7 @@ impl<'a> SignedRequest<'a> {
         let string_to_sign = format!("{}\n{}\n{}\n{}\n{}{}",
                                      &self.method,
                                      md5,
-                                     "".to_string(),
+                                     content_type,
                                      date_str,
                                      can_headers,
                                      can_resources);
@@ -349,8 +358,9 @@ impl<'a> SignedRequest<'a> {
             let _ = hmac.write_all(string_to_sign.as_bytes());
             hmac.finish().unwrap().to_base64(STANDARD)
         };
+       
         let sign = encode(&signature);
-        let sign_url = format!("{}://{}{}{}?AWSAccessKeyId={}&Expires={}&Signature={}",
+        let mut sign_url = format!("{}://{}{}{}?AWSAccessKeyId={}&Expires={}&Signature={}",
                                      self.endpoint_scheme(),
                                      hostname,
                                      port_str,
@@ -358,6 +368,20 @@ impl<'a> SignedRequest<'a> {
                                      creds.aws_access_key_id(),
                                      date_str,
                                      sign);
+
+        if self.method == "PUT" {
+            let url = format!("{}://{}{}{}",
+                                     self.endpoint_scheme(),
+                                     hostname,
+                                     port_str,
+                                     can_resources);
+            sign_url =  format!("{}url:{},date:{},authorization:{}{}",
+                        "{", 
+                        url,
+                        date_str,
+                        signature,
+                        "}");
+        }  
         sign_url
  }
 
@@ -386,27 +410,15 @@ impl<'a> SignedRequest<'a> {
         }
 
         // V2 uses GMT in long format
-        let duration = Duration::minutes(1);
-        let date = (now_utc() + duration).rfc822().to_string();
+        let date = now_utc().rfc822().to_string();
         self.update_header("Date", &date);
 
         self.canonical_query_string = build_canonical_query_string(&self.params);
 
-        // self.canonical_uri = canonical_uri(&self.path);
-        // let canonical_headers = canonical_headers_v2(&self.headers);
-        // let canonical_resources = canonical_resources_v2(&self.bucket, &self.path);
-        // println!("----sign_v2----------");
-        // println!("bucket {:#?}", self.bucket);
-        // println!("hostname {:#?}", hostname);
-        // println!("canonical_query_string {:#?}", self.canonical_query_string);
-        // println!("canonical_resources_v2 {:#?}", canonical_resources);
-        // println!("canonical_headers {:?}", canonical_headers);
-        // println!("**-------------------");
-        // println!("headers {:?}", self.headers);
-        // println!("path {:#?}", self.path);
-        // println!("params {:#?}", self.params);
-        // println!("---------------------");
-
+         self.canonical_uri = canonical_uri(&self.path);
+         let canonical_headers = canonical_headers_v2(&self.headers);
+         let canonical_resources = canonical_resources_v2(&self.bucket, &self.path, self.endpoint.is_bucket_virtual);
+         
         // NOTE: If you set the 'date' header then include it in the string_to_sign w/o the
         // x-amz-date resource. If you do not use the date header but use the x-amz-date then set
         // the date in string_to_sign to "" and include x-amz-date in the resource. It makes it
@@ -434,15 +446,9 @@ impl<'a> SignedRequest<'a> {
                 self.update_header("Content-Length", &format!("{}", 0));
             },
             Some(payload) => {
-                self.update_header("Content-Length", &format!("{}", payload.len()));
-                // println!("--------payload---------");
-                // println!("{:#?}", payload);
+                self.update_header("Content-Length", &format!("{}", payload.len()));                
             },
         }
-
-        // println!("canonical_query_string {:#?}", self.canonical_query_string);
-        // println!("string_to_sign {:#?}", string_to_sign);
-        // println!("===================");
 
         let signature = {
             let hmac_pkey = PKey::hmac(creds.aws_secret_access_key().as_bytes()).unwrap();
@@ -450,7 +456,7 @@ impl<'a> SignedRequest<'a> {
             let _ = hmac.write_all(string_to_sign.as_bytes());
             hmac.finish().unwrap().to_base64(STANDARD)
         };
-       
+      
         self.update_header("Authorization", &format!("AWS {}:{}", creds.aws_access_key_id(), signature));
     }
 

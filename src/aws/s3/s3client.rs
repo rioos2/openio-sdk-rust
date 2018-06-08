@@ -136,7 +136,7 @@ fn hyper_ssl_client() -> Client {
 /// S3Client - Base client all
 /// Virtual Hosting S3 docs - http://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html
 ///
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct S3Client<P, D>
     where P: AwsCredentialsProvider,
           D: DispatchSignedRequest,
@@ -1129,7 +1129,7 @@ impl<P, D> S3Client<P, D>
         }
     }
 
-     pub fn get_object_url(&self,
+    pub fn get_object_url(&self,
                       input: &GetObjectRequest,
                       operation: Option<&mut Operation>)
                       -> String {
@@ -1148,7 +1148,29 @@ impl<P, D> S3Client<P, D>
         }
         let creds = self.credentials_provider.credentials().unwrap();
         request.sign_url(&creds)
+    }
+
+    pub fn put_object_url(&self,
+                      input: &GetObjectRequest,
+                      operation: Option<&mut Operation>)
+                      -> String {
+        let mut request = SignedRequest::new("PUT",
+                                             "s3",
+                                             self.region,
+                                             &input.bucket,
+                                             &format!("/{}", input.key),
+                                             &self.endpoint);
+
+        let hostname = self.hostname(Some(&input.bucket));
+        request.set_hostname(Some(hostname));
+
+        if let Some(ref range) = input.range {
+            request.add_header("Range", range);
         }
+        let creds = self.credentials_provider.credentials().unwrap();
+           
+        request.sign_url(&creds)
+    }
 
     /// Retrieves objects from Amazon S3.
     ///
