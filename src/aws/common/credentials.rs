@@ -149,7 +149,7 @@ pub struct ChainProvider {
 }
 
 /// A trait for types that produce `AwsCredentials` This trait is implemented on most S3 calls.
-pub trait AwsCredentialsProvider: Sized {
+pub trait AwsCredentialsProvider: Send + Sized {
     /// Produce a new `AwsCredentials`.
     fn credentials(&self) -> Result<AwsCredentials, CredentialsError>;
 }
