@@ -59,19 +59,6 @@ use openio_sdk_rust::aws::common::credentials::AwsCredentialsProvider;
 use openio_sdk_rust::aws::common::request::DispatchSignedRequest;
 
 
-fn buckets<P, D>(client: &S3Client<P, D>)
-    where P: AwsCredentialsProvider,
-          D: DispatchSignedRequest
-{
-    let width: usize = 120;
-    repeat_color_with_ends!(term::color::WHITE, "-", "List Buckets", "", "", width);
-
-    match client.list_buckets() {
-        Ok(bucket) => println_color!(term::color::GREEN, "{:#?}", bucket),
-        Err(e) => println_color!(term::color::RED, "{:#?}", e),
-    }
-}
-
 fn main() {
 
      let param_provider: Option<ParametersProvider>;
