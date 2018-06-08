@@ -81,7 +81,7 @@ impl From<IoError> for HttpDispatchError {
 }
 
 /// Trait that is added to the Hyper Client type. This is where ALL HTTP calls get sent from.
-pub trait DispatchSignedRequest: Sized {
+pub trait DispatchSignedRequest {
     fn dispatch(&self, request: &SignedRequest) -> Result<HttpResponse, HttpDispatchError>;
 }
 
