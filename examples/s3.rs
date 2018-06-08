@@ -24,6 +24,7 @@ extern crate openio_sdk_rust;
 #[macro_use]
 extern crate lsio;
 extern crate url;
+
 //extern crate hyper;
 extern crate rustc_serialize;
 extern crate term;
@@ -54,6 +55,23 @@ use openio_sdk_rust::aws::s3::endpoint::{Endpoint, Signature};
 use openio_sdk_rust::aws::s3::s3client::S3Client;
 use url::Url;
 
+use openio_sdk_rust::aws::common::credentials::AwsCredentialsProvider;
+use openio_sdk_rust::aws::common::request::DispatchSignedRequest;
+
+
+fn buckets<P, D>(client: &S3Client<P, D>)
+    where P: AwsCredentialsProvider,
+          D: DispatchSignedRequest
+{
+    let width: usize = 120;
+    repeat_color_with_ends!(term::color::WHITE, "-", "List Buckets", "", "", width);
+
+    match client.list_buckets() {
+        Ok(bucket) => println_color!(term::color::GREEN, "{:#?}", bucket),
+        Err(e) => println_color!(term::color::RED, "{:#?}", e),
+    }
+}
+
 fn main() {
 
      let param_provider: Option<ParametersProvider>;
@@ -71,7 +89,6 @@ fn main() {
     let url = Url::parse("http://192.168.2.7:6007").unwrap();
     let endpoint = Endpoint::new(Region::UsEast1, Signature::V2, Some(url), None, None, Some(false));
     let client = S3Client::new(provider, endpoint);
-
     // For cli version see s3lsio cli
     let bucket_name: &str = "megam";
     let width: usize = 120;
@@ -79,7 +96,7 @@ fn main() {
     // NOTE: repeat_color and println_color are macros from the lsio library
 
     repeat_color!(term::color::GREEN, "=", "Start", width);
-
+   
     repeat_color_with_ends!(term::color::WHITE, "-", "List Buckets", "", "", width);
 
     match client.list_buckets() {
@@ -116,16 +133,15 @@ fn main() {
         Ok(output) => println_color!(term::color::GREEN, "{:#?}", output),
         Err(e) => println_color!(term::color::RED, "{:#?}", e),
     }
- 
-    repeat_color!(term::color::WHITE, "-", "create_multipart_upload", width);
+   repeat_color!(term::color::WHITE, "-", "create_multipart_upload", width);
 
     // This is the first thing that needs to be done. Initiate the request and get the uploadid.
     // Generate a test file of 8MB in size...
     let test_abort: bool = false;
     let file_size: u16 = 8;
     // NOTE: .gitignore has this file name as an ignore. If you change this file name then change .gitignore if you also want to issue a PR.
-    let file_name: &str = "sample.zip";
-    let file_path: &str = "/home/rajthilak/code/megam/workspace/sample.zip";
+    let file_name: &str = "sample1.zip";
+    let file_path: &str = "/home/rajthilak/code/megam/workspace/sample1.zip";
     // NOTE: The temp file will be removed after the test. If you want to keep the file then set this to false.
     let file_remove: bool = true;
     let file_create: bool = true;
@@ -197,6 +213,7 @@ fn main() {
             Ok(_) => println_color!(term::color::YELLOW, "Read in buffer 1 - {}", part1_buffer.len()),
             Err(e) => println_color!(term::color::RED, "Error reading file {}", e),
         }
+
 
         upload_part.body = Some(&part1_buffer);
         upload_part.part_number = 1;
@@ -391,18 +408,7 @@ fn main() {
         Ok(output) => println_color!(term::color::GREEN, "\n\n{:#?}\n\n", str::from_utf8(&output.body).unwrap()),
         Err(e) => println_color!(term::color::RED, "{:#?}", e),
     }
- 
-     repeat_color!(term::color::WHITE, "-", "get_object_url", width);
-
-    let mut get_object = GetObjectRequest::default();
-    get_object.bucket = bucket_name.to_string();
-    get_object.key = "sample.zip".to_string();
-
-    let url = client.get_object_url(&get_object, None); 
-     println_color!(term::color::GREEN, "\n\n{:#?}\n\n", url);
-
-    repeat_color!(term::color::WHITE, "-", "list_buckets", width);
-
+     
     match client.list_buckets() {
         Ok(output) => {
             println_color!(term::color::GREEN, "{:#?}", output);
@@ -411,6 +417,24 @@ fn main() {
             println_color!(term::color::RED, "Error: {:#?}", error);
         },
     }
+
+    repeat_color!(term::color::WHITE, "-", "get_object_url", width);
+
+    let mut get_object = GetObjectRequest::default();
+    get_object.bucket = bucket_name.to_string();
+    get_object.key = "megam.zip".to_string();
+
+    let url = client.get_object_url(&get_object, None); 
+     println_color!(term::color::GREEN, "\n\n{:#?}\n\n", url);
+
+    repeat_color!(term::color::WHITE, "-", "put_object_url", width);
+
+    let mut get_object = GetObjectRequest::default();
+    get_object.bucket = bucket_name.to_string();
+    get_object.key = "megam1.zip".to_string();
+
+    let url = client.put_object_url(&get_object, None); 
+     println_color!(term::color::GREEN, "\n\n{:#?}\n\n", url);
 
     repeat_color!(term::color::GREEN, "=", "Finished", width);
 }
