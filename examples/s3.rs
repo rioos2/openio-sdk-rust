@@ -59,19 +59,6 @@ use openio_sdk_rust::aws::common::credentials::AwsCredentialsProvider;
 use openio_sdk_rust::aws::common::request::DispatchSignedRequest;
 
 
-fn buckets<P, D>(client: &S3Client<P, D>)
-    where P: AwsCredentialsProvider,
-          D: DispatchSignedRequest
-{
-    let width: usize = 120;
-    repeat_color_with_ends!(term::color::WHITE, "-", "List Buckets", "", "", width);
-
-    match client.list_buckets() {
-        Ok(bucket) => println_color!(term::color::GREEN, "{:#?}", bucket),
-        Err(e) => println_color!(term::color::RED, "{:#?}", e),
-    }
-}
-
 fn main() {
 
      let param_provider: Option<ParametersProvider>;
@@ -97,7 +84,7 @@ fn main() {
 
     repeat_color!(term::color::GREEN, "=", "Start", width);
    
-    repeat_color_with_ends!(term::color::WHITE, "-", "List Buckets", "", "", width);
+    /*repeat_color_with_ends!(term::color::WHITE, "-", "List Buckets", "", "", width);
 
     match client.list_buckets() {
         Ok(bucket) => println_color!(term::color::GREEN, "{:#?}", bucket),
@@ -416,25 +403,25 @@ fn main() {
         Err(error) => {
             println_color!(term::color::RED, "Error: {:#?}", error);
         },
-    }
+    }*/
 
     repeat_color!(term::color::WHITE, "-", "get_object_url", width);
 
     let mut get_object = GetObjectRequest::default();
     get_object.bucket = bucket_name.to_string();
-    get_object.key = "megam.zip".to_string();
+    get_object.key = "megam3.zip".to_string();
 
     let url = client.get_object_url(&get_object, None); 
      println_color!(term::color::GREEN, "\n\n{:#?}\n\n", url);
 
-    repeat_color!(term::color::WHITE, "-", "put_object_url", width);
+    /*repeat_color!(term::color::WHITE, "-", "put_object_url", width);
 
     let mut get_object = GetObjectRequest::default();
     get_object.bucket = bucket_name.to_string();
-    get_object.key = "megam1.zip".to_string();
+    get_object.key = "megam3.zip".to_string();
 
     let url = client.put_object_url(&get_object, None); 
-     println_color!(term::color::GREEN, "\n\n{:#?}\n\n", url);
+     println_color!(term::color::GREEN, "\n\n{:#?}\n\n", url);*/
 
     repeat_color!(term::color::GREEN, "=", "Finished", width);
 }

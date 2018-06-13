@@ -375,10 +375,11 @@ impl<'a> SignedRequest<'a> {
                                      hostname,
                                      port_str,
                                      can_resources);
-            sign_url =  format!("{}url:{},date:{},authorization:{}{}",
+            sign_url =  format!("{}\"url\":\"{}\",\"date\":\"{}\",\"content_type\":\"{}\",\"authorization\":\"{}\"{}",
                         "{", 
                         url,
                         date_str,
+                        content_type,
                         signature,
                         "}");
         }  
