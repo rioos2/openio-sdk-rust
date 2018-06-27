@@ -1,3 +1,5 @@
+# For lastest updates: Go to [gitlab.com/rioadvancement/openio-sdk-rust](https://gitlab.com/rioadvancement/openio-sdk-rust.git).
+
 # OPENIO SDK for Rust
 
 OPENIO SDK with initial emphasis on OPENIO. Supports both V2 and V4 authentication signatures. Allows for custom app config, environment variables, standard /.aws/credentials and future Iam credentials. No environmental assumptions or opinions are made on how your access to OPENIO should be handled.
