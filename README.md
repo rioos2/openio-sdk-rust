@@ -1,4 +1,4 @@
-# For lastest updates: Go to [gitlab.com/rioadvancement/openio-sdk-rust](https://gitlab.com/rioadvancement/openio-sdk-rust.git).
+# For lastest updates: Go to [megam.io](https://megam.io).
 
 # OPENIO SDK for Rust
 
